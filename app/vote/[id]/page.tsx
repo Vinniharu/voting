@@ -158,10 +158,10 @@ export default function VotePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-white">Loading election...</p>
+          <p className="mt-4 text-white text-sm sm:text-base">Loading election...</p>
         </div>
       </div>
     )
@@ -171,11 +171,11 @@ export default function VotePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-slate-800/50 border-slate-700">
-          <CardContent className="p-6 text-center">
-            <div className="text-red-400 text-6xl mb-4">⚠️</div>
-            <h2 className="text-xl font-semibold text-white mb-2">Election Not Found</h2>
-            <p className="text-slate-300 mb-4">{error}</p>
-            <Button onClick={() => router.push('/')} variant="outline">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <div className="text-red-400 text-4xl sm:text-6xl mb-4">⚠️</div>
+            <h2 className="text-lg sm:text-xl font-semibold text-white mb-2">Election Not Found</h2>
+            <p className="text-slate-300 mb-4 text-sm sm:text-base">{error}</p>
+            <Button onClick={() => router.push('/')} variant="outline" className="w-full sm:w-auto">
               Go Home
             </Button>
           </CardContent>
@@ -188,10 +188,10 @@ export default function VotePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-slate-800/50 border-slate-700">
-          <CardContent className="p-6 text-center">
-            <CheckCircle className="h-16 w-16 text-green-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-white mb-2">Vote Submitted!</h2>
-            <p className="text-slate-300 mb-4">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 text-green-400 mx-auto mb-4" />
+            <h2 className="text-lg sm:text-2xl font-semibold text-white mb-2">Vote Submitted!</h2>
+            <p className="text-slate-300 mb-4 text-sm sm:text-base">
               Thank you for participating in "{election.title}". Your vote has been recorded successfully.
             </p>
             <Button onClick={() => router.push('/')} className="w-full">
@@ -210,25 +210,25 @@ export default function VotePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4">
       <div className="max-w-2xl mx-auto">
         {/* Election Header */}
-        <Card className="mb-6 bg-slate-800/50 border-slate-700">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl text-white">{election.title}</CardTitle>
-                <CardDescription className="text-slate-300 mt-2">
+        <Card className="mb-4 sm:mb-6 bg-slate-800/50 border-slate-700">
+          <CardHeader className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+              <div className="flex-1">
+                <CardTitle className="text-xl sm:text-2xl text-white leading-tight">{election.title}</CardTitle>
+                <CardDescription className="text-slate-300 mt-2 text-sm sm:text-base">
                   {election.description}
                 </CardDescription>
               </div>
-              <Badge className={statusInfo.color}>
+              <Badge className={`${statusInfo.color} self-start`}>
                 <StatusIcon className="h-4 w-4 mr-1" />
                 {statusInfo.text}
               </Badge>
             </div>
             
-            <div className="flex flex-wrap gap-4 text-sm text-slate-400 mt-4">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-slate-400 mt-4">
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                Ends: {formatDate(election.endDate)}
+                <span className="truncate">Ends: {formatDate(election.endDate)}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
@@ -246,18 +246,18 @@ export default function VotePage() {
 
         {/* Voting Form */}
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-white flex items-center gap-2 text-lg sm:text-xl">
               <Vote className="h-5 w-5" />
               Cast Your Vote
             </CardTitle>
-            <CardDescription className="text-slate-300">
+            <CardDescription className="text-slate-300 text-sm sm:text-base">
               {election.allowMultipleVotes 
                 ? 'Select one or more candidates' 
                 : 'Select one candidate'}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
             {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm">
@@ -268,7 +268,7 @@ export default function VotePage() {
             {/* Email Input (if required) */}
             {election.requireVoterRegistration && (
               <div className="space-y-2">
-                <Label htmlFor="voterEmail" className="text-slate-200 flex items-center gap-2">
+                <Label htmlFor="voterEmail" className="text-slate-200 flex items-center gap-2 text-sm sm:text-base">
                   <Mail className="h-4 w-4" />
                   Email Address
                 </Label>
@@ -278,19 +278,19 @@ export default function VotePage() {
                   placeholder="Enter your email address"
                   value={voteData.voterEmail}
                   onChange={(e) => setVoteData(prev => ({ ...prev, voterEmail: e.target.value }))}
-                  className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 focus:border-blue-500"
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 focus:border-blue-500 text-sm sm:text-base"
                 />
               </div>
             )}
 
             {/* Candidate Selection */}
             <div className="space-y-3">
-              <Label className="text-slate-200">Choose your candidate(s):</Label>
+              <Label className="text-slate-200 text-sm sm:text-base">Choose your candidate(s):</Label>
               <div className="space-y-2">
                 {election.candidates.map((candidate) => (
                   <div
                     key={candidate.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
                       voteData.candidateIds.includes(candidate.id)
                         ? 'border-blue-500 bg-blue-500/20'
                         : 'border-slate-600 bg-slate-700/30 hover:border-slate-500'
@@ -306,12 +306,12 @@ export default function VotePage() {
                         name="candidate"
                         checked={voteData.candidateIds.includes(candidate.id)}
                         onChange={() => {}} // Handled by onClick above
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <div className="font-medium text-white">{candidate.name}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-white text-sm sm:text-base">{candidate.name}</div>
                         {candidate.description && (
-                          <div className="text-sm text-slate-400 mt-1">{candidate.description}</div>
+                          <div className="text-xs sm:text-sm text-slate-400 mt-1 line-clamp-2">{candidate.description}</div>
                         )}
                       </div>
                     </div>
@@ -325,7 +325,7 @@ export default function VotePage() {
               <Button
                 onClick={handleSubmitVote}
                 disabled={isSubmitting || voteData.candidateIds.length === 0 || election.status !== 'active'}
-                className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm sm:text-base"
                 size="lg"
               >
                 {isSubmitting ? (

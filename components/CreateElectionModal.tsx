@@ -179,9 +179,9 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
+      <DialogContent className="w-[95vw] max-w-4xl max-h-[95vh] overflow-y-auto bg-slate-800 border-slate-700 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <DialogHeader>
-          <DialogTitle className="text-white flex items-center gap-2">
+          <DialogTitle className="text-white flex items-center gap-2 text-lg sm:text-xl">
             <Vote className="h-5 w-5" />
             Create New Election
           </DialogTitle>
@@ -190,7 +190,7 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-4 sm:space-y-6 py-4">
           {/* Error Message */}
           {error && (
             <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm">
@@ -201,11 +201,11 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
           {/* Election Details */}
           <Card className="bg-slate-700/50 border-slate-600">
             <CardHeader>
-              <CardTitle className="text-white text-lg">Election Details</CardTitle>
+              <CardTitle className="text-white text-base sm:text-lg">Election Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-slate-200">
+                <Label htmlFor="title" className="text-slate-200 text-sm sm:text-base">
                   Election Title *
                 </Label>
                 <Input
@@ -213,12 +213,12 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
                   placeholder="e.g., Student Council President Election"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="bg-slate-600/50 border-slate-500 text-white placeholder-slate-400 focus:border-blue-500"
+                  className="bg-slate-600/50 border-slate-500 text-white placeholder-slate-400 focus:border-blue-500 text-sm sm:text-base"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-slate-200">
+                <Label htmlFor="description" className="text-slate-200 text-sm sm:text-base">
                   Description *
                 </Label>
                 <Textarea
@@ -226,7 +226,7 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
                   placeholder="Describe what this election is about..."
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="bg-slate-600/50 border-slate-500 text-white placeholder-slate-400 focus:border-blue-500 min-h-[80px]"
+                  className="bg-slate-600/50 border-slate-500 text-white placeholder-slate-400 focus:border-blue-500 min-h-[60px] sm:min-h-[80px] text-sm sm:text-base"
                 />
               </div>
             </CardContent>
@@ -235,10 +235,10 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
           {/* Candidates */}
           <Card className="bg-slate-700/50 border-slate-600">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <CardTitle className="text-white text-lg">Candidates</CardTitle>
-                  <CardDescription className="text-slate-300">
+                  <CardTitle className="text-white text-base sm:text-lg">Candidates</CardTitle>
+                  <CardDescription className="text-slate-300 text-sm">
                     Add the candidates people can vote for (minimum 2 required)
                   </CardDescription>
                 </div>
@@ -247,7 +247,7 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
                   onClick={addCandidate}
                   size="sm"
                   variant="outline"
-                  className="border-slate-500 text-slate-300 hover:bg-slate-600"
+                  className="border-slate-500 text-slate-300 hover:bg-slate-600 self-start sm:self-auto"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add
@@ -256,9 +256,9 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
             </CardHeader>
             <CardContent className="space-y-4">
               {formData.candidates.map((candidate, index) => (
-                <div key={candidate.id} className="p-4 bg-slate-600/30 rounded-lg border border-slate-500">
+                <div key={candidate.id} className="p-3 sm:p-4 bg-slate-600/30 rounded-lg border border-slate-500">
                   <div className="flex items-start justify-between mb-3">
-                    <h4 className="text-white font-medium">Candidate {index + 1}</h4>
+                    <h4 className="text-white font-medium text-sm sm:text-base">Candidate {index + 1}</h4>
                     {formData.candidates.length > 2 && (
                       <Button
                         type="button"
@@ -281,7 +281,7 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
                         placeholder="Candidate name"
                         value={candidate.name}
                         onChange={(e) => handleCandidateChange(candidate.id, 'name', e.target.value)}
-                        className="bg-slate-500/50 border-slate-400 text-white placeholder-slate-400 focus:border-blue-500"
+                        className="bg-slate-500/50 border-slate-400 text-white placeholder-slate-400 focus:border-blue-500 text-sm sm:text-base"
                       />
                     </div>
                     
@@ -293,7 +293,7 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
                         placeholder="Brief description of the candidate (optional)"
                         value={candidate.description}
                         onChange={(e) => handleCandidateChange(candidate.id, 'description', e.target.value)}
-                        className="bg-slate-500/50 border-slate-400 text-white placeholder-slate-400 focus:border-blue-500 min-h-[60px]"
+                        className="bg-slate-500/50 border-slate-400 text-white placeholder-slate-400 focus:border-blue-500 min-h-[50px] sm:min-h-[60px] text-sm sm:text-base"
                       />
                     </div>
                   </div>
@@ -303,8 +303,8 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
           </Card>
 
           {/* Info Box */}
-          <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-            <p className="text-blue-300 text-sm">
+          <div className="p-3 sm:p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <p className="text-blue-300 text-xs sm:text-sm">
               <strong>Default Settings:</strong> Elections will start immediately and run for 7 days. 
               Voters can select one candidate and no registration is required.
             </p>
@@ -312,12 +312,12 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-600">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-slate-600">
           <Button
             type="button"
             variant="outline"
             onClick={() => setOpen(false)}
-            className="border-slate-600 text-slate-300 hover:bg-slate-700"
+            className="border-slate-600 text-slate-300 hover:bg-slate-700 order-2 sm:order-1"
           >
             Cancel
           </Button>
@@ -325,7 +325,7 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
+            className="bg-green-600 hover:bg-green-700 disabled:opacity-50 order-1 sm:order-2"
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">

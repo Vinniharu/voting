@@ -99,14 +99,14 @@ export default function Dashboard() {
       {/* Header */}
       <div className="bg-blue-950 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-600">Election Dashboard</h1>
-              <p className="text-gray-200">Welcome back, {user.fullName}</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-600">Election Dashboard</h1>
+              <p className="text-gray-200 text-sm sm:text-base">Welcome back, {user.fullName}</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
               <CreateElectionModal onElectionCreated={handleElectionCreated} />
-              <Button variant="outline" onClick={handleLogout}>
+              <Button variant="outline" onClick={handleLogout} className="w-full sm:w-auto">
                 Logout
               </Button>
             </div>
@@ -115,9 +115,9 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Elections</CardTitle>
@@ -138,7 +138,7 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="sm:col-span-2 lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Votes</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
@@ -154,8 +154,8 @@ export default function Dashboard() {
         {/* Elections List */}
         <Card>
           <CardHeader>
-            <CardTitle>Your Elections</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Your Elections</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Manage and monitor your created elections
             </CardDescription>
           </CardHeader>
@@ -164,30 +164,30 @@ export default function Dashboard() {
               <div className="text-center py-8">
                 <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No elections yet</h3>
-                <p className="text-gray-600 mb-4">Create your first election to get started</p>
+                <p className="text-gray-600 mb-4 text-sm sm:text-base">Create your first election to get started</p>
                 <CreateElectionModal onElectionCreated={handleElectionCreated} />
               </div>
             ) : (
               <div className="space-y-4">
                 {elections.map((election: Election) => (
                   <div key={election.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-lg">{election.title}</h3>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-base sm:text-lg">{election.title}</h3>
                           <Badge className={getStatusColor(election.status)}>
                             {election.status}
                           </Badge>
                         </div>
-                        <p className="text-gray-600 mb-3">{election.description}</p>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <p className="text-gray-600 mb-3 text-sm sm:text-base">{election.description}</p>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-sm">
                           <div>
                             <span className="font-medium">Start:</span>
-                            <div className="text-gray-600">{formatDate(election.startDate)}</div>
+                            <div className="text-gray-600 text-xs sm:text-sm">{formatDate(election.startDate)}</div>
                           </div>
                           <div>
                             <span className="font-medium">End:</span>
-                            <div className="text-gray-600">{formatDate(election.endDate)}</div>
+                            <div className="text-gray-600 text-xs sm:text-sm">{formatDate(election.endDate)}</div>
                           </div>
                           <div>
                             <span className="font-medium">Candidates:</span>
@@ -199,37 +199,44 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-2 ml-4">
+                      <div className="flex flex-col sm:flex-row lg:flex-col gap-2 lg:ml-4">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => router.push(`/elections/${election.id}`)}
+                          className="text-xs sm:text-sm"
                         >
                           <BarChart3 className="h-4 w-4 mr-1" />
-                          View Details
+                          <span className="hidden sm:inline">View Details</span>
+                          <span className="sm:hidden">Details</span>
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => router.push(`/elections/${election.id}/results`)}
+                          className="text-xs sm:text-sm"
                         >
                           <BarChart3 className="h-4 w-4 mr-1" />
-                          View Results
+                          <span className="hidden sm:inline">View Results</span>
+                          <span className="sm:hidden">Results</span>
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => copyVotingLink(election.id)}
+                          className="text-xs sm:text-sm"
                         >
                           {copiedLink === election.id ? (
                             <>
                               <Copy className="h-4 w-4 mr-1" />
-                              Copied!
+                              <span className="hidden sm:inline">Copied!</span>
+                              <span className="sm:hidden">✓</span>
                             </>
                           ) : (
                             <>
                               <ExternalLink className="h-4 w-4 mr-1" />
-                              Copy Link
+                              <span className="hidden sm:inline">Copy Link</span>
+                              <span className="sm:hidden">Link</span>
                             </>
                           )}
                         </Button>
