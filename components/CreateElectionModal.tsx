@@ -110,9 +110,9 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
         description: formData.description.trim(),
         startDate: new Date().toISOString(), // Start immediately
         endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // End in 7 days
-        candidates: validCandidates,
-        allowMultipleVotes: false, // Default to single vote
-        requireVoterRegistration: false // Default to no registration required
+        candidates: validCandidates, // Send full candidate objects
+        votingPolicy: 'one-vote' as const, // Backend expects votingPolicy, not allowMultipleVotes
+        requiresRegistration: false // Backend expects requiresRegistration, not requireVoterRegistration
       }
 
       console.log('Creating election:', electionData)

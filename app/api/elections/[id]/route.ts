@@ -3,10 +3,11 @@ import { supabase } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const electionId = params.id
+    const resolvedParams = await params
+    const electionId = resolvedParams.id
 
     // Get election with candidates
     const { data: election, error: electionError } = await supabase

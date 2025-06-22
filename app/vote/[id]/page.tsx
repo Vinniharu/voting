@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Vote, CheckCircle, Clock, Users, Mail } from 'lucide-react'
+import { formatDateWithTime } from '@/lib/utils'
 
 interface Candidate {
   id: string
@@ -135,15 +136,7 @@ export default function VotePage() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+
 
   const getStatusInfo = (status: string) => {
     switch (status) {
@@ -228,7 +221,7 @@ export default function VotePage() {
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-slate-400 mt-4">
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                <span className="truncate">Ends: {formatDate(election.endDate)}</span>
+                <span className="truncate">Ends: {formatDateWithTime(election.endDate)}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Users className="h-4 w-4" />

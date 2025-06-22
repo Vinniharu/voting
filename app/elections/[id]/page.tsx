@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useUserStore, Election, Candidate } from '@/lib/userStore'
 import BlockchainValidationPanel from '@/components/BlockchainValidationPanel'
+import { formatDateWithTime } from '@/lib/utils'
 
 export default function ElectionDetailsPage() {
   const [election, setElection] = useState<Election | null>(null)
@@ -35,8 +36,11 @@ export default function ElectionDetailsPage() {
   const { user, fetchProfile } = useUserStore()
 
   useEffect(() => {
-    fetchProfile()
-  }, [fetchProfile])
+    // Only fetch profile if no user is persisted
+    if (user === null) {
+      fetchProfile()
+    }
+  }, [user, fetchProfile])
 
   useEffect(() => {
     if (user === null) {
@@ -88,15 +92,7 @@ export default function ElectionDetailsPage() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+
 
   const generateVotingLink = () => {
     const baseUrl = window.location.origin
@@ -242,7 +238,7 @@ export default function ElectionDetailsPage() {
                     <h3 className="font-medium text-gray-900 mb-2">Start Date</h3>
                     <div className="flex items-center gap-2 text-gray-600">
                       <Calendar className="h-4 w-4" />
-                      {formatDate(election.startDate)}
+                      {formatDateWithTime(election.startDate)}
                     </div>
                   </div>
                   
@@ -250,7 +246,7 @@ export default function ElectionDetailsPage() {
                     <h3 className="font-medium text-gray-900 mb-2">End Date</h3>
                     <div className="flex items-center gap-2 text-gray-600">
                       <Calendar className="h-4 w-4" />
-                      {formatDate(election.endDate)}
+                      {formatDateWithTime(election.endDate)}
                     </div>
                   </div>
                 </div>
@@ -300,7 +296,7 @@ export default function ElectionDetailsPage() {
                           )}
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-bold text-gray-900">{candidate.voteCount}</div>
+                          <div className="text-lg font-bold text-gray-900">0</div>
                           <div className="text-sm text-gray-600">votes</div>
                         </div>
                       </div>
@@ -348,7 +344,7 @@ export default function ElectionDetailsPage() {
                       </div>
                     </div>
                     <div className="text-sm text-gray-600">
-                      Report generated: {new Date(auditData.timestamp).toLocaleString()}
+                      Report generated: {formatDateWithTime(auditData.timestamp)}
                     </div>
                   </div>
                 </CardContent>

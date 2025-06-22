@@ -16,6 +16,7 @@ import {
   Network,
   Zap
 } from 'lucide-react'
+import { formatDateTime } from '@/lib/utils'
 
 interface BlockchainValidationStatus {
   electionId: string
@@ -275,7 +276,7 @@ export default function BlockchainValidationPanel({ electionId, onAuditGenerated
                   </span>
                 </div>
                 <div className="text-sm text-gray-300">
-                  Last sync: {new Date(validationStatus.lastSyncTime).toLocaleString()}
+                  Last sync: {formatDateTime(validationStatus.lastSyncTime)}
                 </div>
               </div>
 
@@ -351,7 +352,7 @@ export default function BlockchainValidationPanel({ electionId, onAuditGenerated
               <div className="space-y-1">
                 <div className="text-sm text-gray-600">Block Number</div>
                 <div className="font-mono text-sm text-blue-600">
-                  #{networkStatus.blockNumber.toLocaleString()}
+                  #{networkStatus.blockNumber.toString()}
                 </div>
               </div>
               

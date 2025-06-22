@@ -7,21 +7,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Plus, Calendar, Users, BarChart3, ExternalLink, Copy } from 'lucide-react'
 import CreateElectionModal from '@/components/CreateElectionModal'
+import VoteResultsModal from '@/components/VoteResultsModal'
 import { useUserStore, Election } from '@/lib/userStore'
+import { formatDateTime } from '@/lib/utils'
 
 export default function Dashboard() {
   const [copiedLink, setCopiedLink] = useState<string | null>(null)
+  const [voteResultsModal, setVoteResultsModal] = useState<{ isOpen: boolean; electionId: string | null }>({
+    isOpen: false,
+    electionId: null
+  })
   const router = useRouter()
   
   const { user, elections, logout, fetchProfile, fetchElections } = useUserStore()
 
   useEffect(() => {
-    // Fetch user profile on mount
-    fetchProfile()
-  }, [fetchProfile])
+    // Only fetch profile if no user is persisted
+    if (user === null) {
+      fetchProfile()
+    }
+  }, [user, fetchProfile])
 
   useEffect(() => {
-    // Redirect to login if not authenticated
+    // Redirect to login if not authenticated and profile fetch completed
     if (user === null) {
       router.push('/login')
       return
@@ -47,15 +55,7 @@ export default function Dashboard() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+
 
   const generateVotingLink = (electionId: string) => {
     const baseUrl = window.location.origin
@@ -75,6 +75,14 @@ export default function Dashboard() {
 
   const handleElectionCreated = () => {
     fetchElections() // Refresh the elections list
+  }
+
+  const openVoteResults = (electionId: string) => {
+    setVoteResultsModal({ isOpen: true, electionId })
+  }
+
+  const closeVoteResults = () => {
+    setVoteResultsModal({ isOpen: false, electionId: null })
   }
 
   // Show loading state while checking authentication
@@ -183,11 +191,11 @@ export default function Dashboard() {
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-sm">
                           <div>
                             <span className="font-medium">Start:</span>
-                            <div className="text-gray-600 text-xs sm:text-sm">{formatDate(election.startDate)}</div>
+                            <div className="text-gray-600 text-xs sm:text-sm">{formatDateTime(election.startDate)}</div>
                           </div>
                           <div>
                             <span className="font-medium">End:</span>
-                            <div className="text-gray-600 text-xs sm:text-sm">{formatDate(election.endDate)}</div>
+                            <div className="text-gray-600 text-xs sm:text-sm">{formatDateTime(election.endDate)}</div>
                           </div>
                           <div>
                             <span className="font-medium">Candidates:</span>
@@ -213,12 +221,12 @@ export default function Dashboard() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => router.push(`/elections/${election.id}/results`)}
+                          onClick={() => setVoteResultsModal({ isOpen: true, electionId: election.id })}
                           className="text-xs sm:text-sm"
                         >
                           <BarChart3 className="h-4 w-4 mr-1" />
-                          <span className="hidden sm:inline">View Results</span>
-                          <span className="sm:hidden">Results</span>
+                          <span className="hidden sm:inline">View Votes</span>
+                          <span className="sm:hidden">Votes</span>
                         </Button>
                         <Button
                           variant="outline"
@@ -249,6 +257,13 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Vote Results Modal */}
+      <VoteResultsModal
+        isOpen={voteResultsModal.isOpen}
+        onClose={() => setVoteResultsModal({ isOpen: false, electionId: null })}
+        electionId={voteResultsModal.electionId}
+      />
     </div>
   )
 } 

@@ -32,6 +32,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900`}
+        suppressHydrationWarning={true}
       >
         <div className="relative min-h-screen">
           {/* Animated background grid */}

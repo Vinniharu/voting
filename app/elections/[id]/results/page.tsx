@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { ArrowLeft, Users, Vote, Trophy, Calendar, Clock } from 'lucide-react'
+import { formatDateWithTime } from '@/lib/utils'
 
 interface Candidate {
   id: string
@@ -67,15 +68,7 @@ export default function ElectionResultsPage() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+
 
   const getStatusInfo = (status: string) => {
     switch (status) {
@@ -162,11 +155,11 @@ export default function ElectionResultsPage() {
             <div className="flex flex-wrap gap-4 text-sm text-slate-400 mt-4">
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                Started: {formatDate(election.startDate)}
+                Started: {formatDateWithTime(election.startDate)}
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                Ends: {formatDate(election.endDate)}
+                Ends: {formatDateWithTime(election.endDate)}
               </div>
               <div className="flex items-center gap-1">
                 <Users className="h-4 w-4" />

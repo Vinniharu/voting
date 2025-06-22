@@ -3,16 +3,24 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createClient()
-    const electionId = params.id
+    const resolvedParams = await params
+    const supabase = await createClient()
+    const electionId = resolvedParams.id
 
-    // Get election details
+    // Get election details with candidates
     const { data: election, error: electionError } = await supabase
       .from('elections')
-      .select('*')
+      .select(`
+        *,
+        candidates (
+          id,
+          name,
+          description
+        )
+      `)
       .eq('id', electionId)
       .single()
 
@@ -23,13 +31,14 @@ export async function GET(
       )
     }
 
-    // Get vote counts for each candidate
-    const { data: voteCounts, error: voteError } = await supabase
+    // Get votes for this election
+    const { data: votes, error: voteError } = await supabase
       .from('votes')
-      .select('candidate_id')
+      .select('candidate_ids')
       .eq('election_id', electionId)
 
     if (voteError) {
+      console.error('Vote fetch error:', voteError)
       return NextResponse.json(
         { error: 'Failed to fetch vote data' },
         { status: 500 }
@@ -38,11 +47,22 @@ export async function GET(
 
     // Count votes per candidate
     const candidateVotes: { [key: string]: number } = {}
-    voteCounts?.forEach(vote => {
-      candidateVotes[vote.candidate_id] = (candidateVotes[vote.candidate_id] || 0) + 1
+    
+    // Initialize all candidates with 0 votes
+    election.candidates.forEach((candidate: any) => {
+      candidateVotes[candidate.id] = 0
     })
 
-    const totalVotes = voteCounts?.length || 0
+    // Count votes (candidate_ids is an array in each vote)
+    votes?.forEach(vote => {
+      if (vote.candidate_ids && Array.isArray(vote.candidate_ids)) {
+        vote.candidate_ids.forEach((candidateId: string) => {
+          candidateVotes[candidateId] = (candidateVotes[candidateId] || 0) + 1
+        })
+      }
+    })
+
+    const totalVotes = votes?.length || 0
 
     // Create results array with candidate information
     const results = election.candidates.map((candidate: any) => {
@@ -52,10 +72,17 @@ export async function GET(
       return {
         candidateId: candidate.id,
         candidateName: candidate.name,
+        description: candidate.description,
         voteCount,
-        percentage
+        percentage: Math.round(percentage * 100) / 100 // Round to 2 decimal places
       }
     })
+
+    // Sort by vote count descending
+    results.sort((a, b) => b.voteCount - a.voteCount)
+
+    // Determine winner
+    const winner = results.length > 0 ? results[0] : null
 
     // Format election data
     const formattedElection = {
@@ -64,14 +91,15 @@ export async function GET(
       description: election.description,
       startDate: election.start_date,
       endDate: election.end_date,
-      candidates: election.candidates,
-      status: election.status
+      status: election.status,
+      voteCount: election.vote_count || 0
     }
 
     return NextResponse.json({
       election: formattedElection,
       results,
-      totalVotes
+      totalVotes,
+      winner
     })
 
   } catch (error) {

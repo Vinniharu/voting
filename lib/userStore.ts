@@ -78,7 +78,7 @@ export const useUserStore = create<UserState>()(
 
           if (response.ok) {
             const userData = await response.json()
-            set({ user: userData, isLoading: false })
+            set({ user: userData.user, isLoading: false })
             return true
           } else {
             set({ isLoading: false })
@@ -158,7 +158,7 @@ export const useUserStore = create<UserState>()(
           const response = await fetch('/api/auth/me')
           if (response.ok) {
             const userData = await response.json()
-            set({ user: userData })
+            set({ user: userData.user })
           } else {
             set({ user: null })
           }
@@ -209,14 +209,5 @@ export const useUserStore = create<UserState>()(
   )
 )
 
-export const findUserByEmail = (email: string): User | undefined => {
-  return users.find(user => user.email.toLowerCase() === email.toLowerCase())
-}
-
-export const findUserById = (id: string): User | undefined => {
-  return users.find(user => user.id === id)
-}
-
-export const addUser = (user: User): void => {
-  users.push(user)
-} 
+// These functions were removed as they referenced a non-existent users array
+// User management is now handled through Supabase directly 

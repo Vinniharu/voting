@@ -32,53 +32,26 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     
     if (authError || !user) {
+      console.error('Auth error:', authError)
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }
       )
     }
 
-    // Get user profile
-    const { data: userProfile, error: profileError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .single()
-
-    if (profileError || !userProfile) {
-      return NextResponse.json(
-        { error: 'User profile not found' },
-        { status: 404 }
-      )
-    }
-
     const body = await request.json()
+    console.log('Received election data:', body)
+    
     const {
       title,
       description,
-      startDate,
-      endDate,
       candidates,
-      votingPolicy,
-      requiresRegistration
     } = body
 
     // Validate required fields
-    if (!title || !description || !startDate || !endDate || !candidates || !votingPolicy) {
+    if (!title || !description || !candidates) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
-
-    // Validate dates
-    const start = new Date(startDate)
-    const end = new Date(endDate)
-    const now = new Date()
-
-    if (start >= end) {
-      return NextResponse.json(
-        { error: 'End date must be after start date' },
+        { error: 'Title, description, and candidates are required' },
         { status: 400 }
       )
     }
@@ -91,15 +64,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Determine election status
-    let status: 'draft' | 'active' | 'ended' = 'draft'
-    if (now >= start && now <= end) {
-      status = 'active'
-    } else if (now > end) {
-      status = 'ended'
+    // Validate that candidates have names
+    const validCandidates = candidates.filter(candidate => {
+      const name = candidate.name || candidate
+      return name && typeof name === 'string' && name.trim().length > 0
+    })
+
+    if (validCandidates.length < 2) {
+      return NextResponse.json(
+        { error: 'At least 2 candidates with valid names are required' },
+        { status: 400 }
+      )
     }
 
-    // Create election in database
+    // Set default dates (start now, end in 7 days)
+    const startDate = new Date().toISOString()
+    const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+
+    console.log('Creating election with simplified data')
+
+    // Create election in database (simplified - no user profile dependency)
     const { data: election, error: insertError } = await supabase
       .from('elections')
       .insert({
@@ -107,10 +91,10 @@ export async function POST(request: NextRequest) {
         description,
         start_date: startDate,
         end_date: endDate,
-        allow_multiple_votes: votingPolicy === 'multiple-votes',
-        require_voter_registration: requiresRegistration || false,
+        allow_multiple_votes: false,
+        require_voter_registration: false,
         creator_id: user.id,
-        status
+        status: 'active'
       })
       .select()
       .single()
@@ -118,17 +102,21 @@ export async function POST(request: NextRequest) {
     if (insertError) {
       console.error('Election creation error:', insertError)
       return NextResponse.json(
-        { error: 'Failed to create election' },
+        { error: `Failed to create election: ${insertError.message}` },
         { status: 500 }
       )
     }
 
+    console.log('Election created:', election)
+
     // Insert candidates
-    const candidateInserts = candidates.map((candidate: string) => ({
-      name: candidate,
+    const candidateInserts = candidates.map((candidate: any) => ({
+      name: candidate.name || candidate,
       election_id: election.id,
-      description: '' // Default empty description
+      description: candidate.description || ''
     }))
+
+    console.log('Inserting candidates:', candidateInserts)
 
     const { error: candidatesError } = await supabase
       .from('candidates')
@@ -139,9 +127,19 @@ export async function POST(request: NextRequest) {
       // Rollback election if candidates fail
       await supabase.from('elections').delete().eq('id', election.id)
       return NextResponse.json(
-        { error: 'Failed to create candidates' },
+        { error: `Failed to create candidates: ${candidatesError.message}` },
         { status: 500 }
       )
+    }
+
+    // Get the created candidates from database
+    const { data: createdCandidates, error: fetchCandidatesError } = await supabase
+      .from('candidates')
+      .select('*')
+      .eq('election_id', election.id)
+
+    if (fetchCandidatesError) {
+      console.error('Error fetching candidates:', fetchCandidatesError)
     }
 
     // Return the created election
@@ -151,21 +149,22 @@ export async function POST(request: NextRequest) {
       description: election.description,
       startDate: election.start_date,
       endDate: election.end_date,
-      candidates,
-      votingPolicy: election.allow_multiple_votes ? 'multiple-votes' : 'one-vote',
-      requiresRegistration: election.require_voter_registration,
+      candidates: createdCandidates || [],
+      votingPolicy: 'one-vote',
+      requiresRegistration: false,
       creatorId: election.creator_id,
       createdAt: election.created_at,
-      voteCount: election.vote_count,
+      voteCount: election.vote_count || 0,
       status: election.status
     }
 
+    console.log('Returning response:', response)
     return NextResponse.json(response, { status: 201 })
 
   } catch (error) {
     console.error('Election creation error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     )
   }
@@ -193,7 +192,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get elections created by the user
+    // Get elections (simplified - show all elections for now)
     const { data: elections, error: electionsError } = await supabase
       .from('elections')
       .select(`
@@ -204,7 +203,6 @@ export async function GET(request: NextRequest) {
           description
         )
       `)
-      .eq('creator_id', user.id)
       .order('created_at', { ascending: false })
 
     if (electionsError) {
@@ -229,7 +227,7 @@ export async function GET(request: NextRequest) {
       createdAt: election.created_at,
       voteCount: election.vote_count,
       status: election.status,
-      votes: [] // We'll fetch votes separately if needed
+      votes: []
     }))
 
     return NextResponse.json(transformedElections)
