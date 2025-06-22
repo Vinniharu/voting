@@ -10,7 +10,6 @@ import CreateElectionModal from '@/components/CreateElectionModal'
 import { useUserStore, Election } from '@/lib/userStore'
 
 export default function Dashboard() {
-  const [showCreateModal, setShowCreateModal] = useState(false)
   const [copiedLink, setCopiedLink] = useState<string | null>(null)
   const router = useRouter()
   
@@ -74,12 +73,7 @@ export default function Dashboard() {
     }
   }
 
-  const handleCreateElection = () => {
-    setShowCreateModal(true)
-  }
-
   const handleElectionCreated = () => {
-    setShowCreateModal(false)
     fetchElections() // Refresh the elections list
   }
 
@@ -111,10 +105,7 @@ export default function Dashboard() {
               <p className="text-gray-200">Welcome back, {user.fullName}</p>
             </div>
             <div className="flex items-center gap-4">
-              <Button onClick={handleCreateElection} className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Create Election
-              </Button>
+              <CreateElectionModal onElectionCreated={handleElectionCreated} />
               <Button variant="outline" onClick={handleLogout}>
                 Logout
               </Button>
@@ -174,10 +165,7 @@ export default function Dashboard() {
                 <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No elections yet</h3>
                 <p className="text-gray-600 mb-4">Create your first election to get started</p>
-                <Button onClick={handleCreateElection}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Election
-                </Button>
+                <CreateElectionModal onElectionCreated={handleElectionCreated} />
               </div>
             ) : (
               <div className="space-y-4">
@@ -254,13 +242,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Create Election Modal */}
-      <CreateElectionModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onElectionCreated={handleElectionCreated}
-      />
     </div>
   )
 } 
