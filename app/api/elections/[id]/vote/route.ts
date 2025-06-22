@@ -3,10 +3,11 @@ import { supabase } from '@/lib/supabase'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const electionId = params.id
+    const resolvedParams = await params
+    const electionId = resolvedParams.id
     const { candidateIds, voterEmail } = await request.json()
 
     console.log('Vote submission:', { electionId, candidateIds, voterEmail })
@@ -149,10 +150,11 @@ export async function POST(
 // Simple endpoint to get vote counts for an election
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const electionId = params.id
+    const resolvedParams = await params
+    const electionId = resolvedParams.id
 
     // Get election info
     const { data: election, error: electionError } = await supabase
