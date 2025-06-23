@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/server'
 
 interface VoteResult {
   candidateId: string
@@ -15,7 +15,7 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
     const electionId = resolvedParams.id
 
     // Get election details with candidates

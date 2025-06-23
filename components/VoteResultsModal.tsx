@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -49,6 +48,13 @@ export default function VoteResultsModal({ isOpen, onClose, electionId }: VoteRe
 
   useEffect(() => {
     if (isOpen && electionId) {
+      // Reset state when opening
+      setResults([])
+      setElection(null)
+      setTotalVotes(0)
+      setWinner(null)
+      setError(null)
+      
       fetchVoteResults()
     }
   }, [isOpen, electionId])
@@ -60,20 +66,25 @@ export default function VoteResultsModal({ isOpen, onClose, electionId }: VoteRe
     setError(null)
 
     try {
+      console.log('Fetching vote results for election:', electionId)
       const response = await fetch(`/api/elections/${electionId}/results`)
       
       if (!response.ok) {
-        throw new Error('Failed to fetch vote results')
+        const errorData = await response.text()
+        console.error('API Error:', response.status, errorData)
+        throw new Error(`Failed to fetch vote results: ${response.status}`)
       }
 
       const data = await response.json()
+      console.log('Vote results data:', data)
+      
       setResults(data.results || [])
       setElection(data.election)
       setTotalVotes(data.totalVotes || 0)
-      setWinner(data.winner)
+      setWinner(data.winner || null)
     } catch (error) {
       console.error('Error fetching vote results:', error)
-      setError('Failed to load vote results')
+      setError('Failed to load vote results. Please try again.')
     } finally {
       setLoading(false)
     }

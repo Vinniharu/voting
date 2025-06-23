@@ -77,14 +77,6 @@ export default function Dashboard() {
     fetchElections() // Refresh the elections list
   }
 
-  const openVoteResults = (electionId: string) => {
-    setVoteResultsModal({ isOpen: true, electionId })
-  }
-
-  const closeVoteResults = () => {
-    setVoteResultsModal({ isOpen: false, electionId: null })
-  }
-
   // Show loading state while checking authentication
   if (user === undefined) {
     return (
@@ -208,16 +200,6 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row lg:flex-col gap-2 lg:ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => router.push(`/elections/${election.id}`)}
-                          className="text-xs sm:text-sm"
-                        >
-                          <BarChart3 className="h-4 w-4 mr-1" />
-                          <span className="hidden sm:inline">View Details</span>
-                          <span className="sm:hidden">Details</span>
-                        </Button>
                         <Button
                           variant="outline"
                           size="sm"

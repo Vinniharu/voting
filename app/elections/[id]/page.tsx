@@ -18,7 +18,6 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import { useUserStore, Election, Candidate } from '@/lib/userStore'
-import BlockchainValidationPanel from '@/components/BlockchainValidationPanel'
 import { formatDateWithTime } from '@/lib/utils'
 
 export default function ElectionDetailsPage() {
@@ -27,7 +26,6 @@ export default function ElectionDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
-  const [auditData, setAuditData] = useState<any>(null)
   
   const router = useRouter()
   const params = useParams()
@@ -110,11 +108,7 @@ export default function ElectionDetailsPage() {
     }
   }
 
-  const handleAuditGenerated = (audit: any) => {
-    setAuditData(audit)
-    // You could also open a modal or navigate to a detailed audit view
-    console.log('Audit report generated:', audit)
-  }
+
 
   // Show loading state
   if (loading) {
@@ -306,58 +300,35 @@ export default function ElectionDetailsPage() {
               </CardContent>
             </Card>
 
-            {/* Audit Report Display */}
-            {auditData && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Latest Audit Report</CardTitle>
-                  <CardDescription>
-                    Blockchain validation audit results
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="text-center p-3 bg-blue-50 rounded-lg">
-                        <div className="text-2xl font-bold text-blue-600">
-                          {auditData.summary?.totalVotes || 0}
-                        </div>
-                        <div className="text-sm text-blue-800">Total Votes</div>
-                      </div>
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">
-                          {auditData.summary?.validatedVotes || 0}
-                        </div>
-                        <div className="text-sm text-green-800">Validated</div>
-                      </div>
-                      <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                        <div className="text-2xl font-bold text-yellow-600">
-                          {auditData.summary?.pendingValidation || 0}
-                        </div>
-                        <div className="text-sm text-yellow-800">Pending</div>
-                      </div>
-                      <div className="text-center p-3 bg-purple-50 rounded-lg">
-                        <div className="text-2xl font-bold text-purple-600">
-                          {auditData.summary?.integrityScore || 0}%
-                        </div>
-                        <div className="text-sm text-purple-800">Integrity</div>
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Report generated: {formatDateWithTime(auditData.timestamp)}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+
           </div>
 
-          {/* Right Column - Blockchain Validation */}
+          {/* Right Column - Election Statistics */}
           <div className="lg:col-span-1">
-            <BlockchainValidationPanel 
-              electionId={electionId}
-              onAuditGenerated={handleAuditGenerated}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>Election Statistics</CardTitle>
+                <CardDescription>
+                  Current voting statistics
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-3xl font-bold text-blue-600">
+                      {election.voteCount || 0}
+                    </div>
+                    <div className="text-sm text-blue-800">Total Votes Cast</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-3xl font-bold text-green-600">
+                      {candidates.length}
+                    </div>
+                    <div className="text-sm text-green-800">Candidates</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

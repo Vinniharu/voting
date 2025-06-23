@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 export async function POST(
   request: NextRequest,
@@ -10,7 +10,8 @@ export async function POST(
     const electionId = resolvedParams.id
     const { candidateIds, voterEmail } = await request.json()
 
-    console.log('Vote submission:', { electionId, candidateIds, voterEmail })
+    // Use service role client to bypass RLS
+    const supabase = createServiceRoleClient()
 
     // Basic validation
     if (!candidateIds || !Array.isArray(candidateIds) || candidateIds.length === 0) {
@@ -23,7 +24,7 @@ export async function POST(
     // Check if election exists and is active
     const { data: election, error: electionError } = await supabase
       .from('elections')
-      .select('*')
+      .select('id, title, status, start_date, end_date, allow_multiple_votes, require_voter_registration')
       .eq('id', electionId)
       .single()
 
@@ -34,7 +35,7 @@ export async function POST(
       )
     }
 
-    // Check if election is active (between start and end dates)
+    // Check if election is active
     const now = new Date()
     const startDate = new Date(election.start_date)
     const endDate = new Date(election.end_date)
@@ -53,7 +54,7 @@ export async function POST(
       )
     }
 
-    // Check if email is required but not provided
+    // Check if email is required
     if (election.require_voter_registration && !voterEmail) {
       return NextResponse.json(
         { error: 'Email is required for this election' },
@@ -61,20 +62,9 @@ export async function POST(
       )
     }
 
-    // Validate email format if provided
-    if (voterEmail) {
-      const emailRegex = /\S+@\S+\.\S+/
-      if (!emailRegex.test(voterEmail)) {
-        return NextResponse.json(
-          { error: 'Please enter a valid email address' },
-          { status: 400 }
-        )
-      }
-    }
-
     // Check if voter has already voted (only if email is provided)
     if (voterEmail) {
-      const { data: existingVote, error: voteCheckError } = await supabase
+      const { data: existingVote } = await supabase
         .from('votes')
         .select('id')
         .eq('election_id', electionId)
@@ -89,7 +79,7 @@ export async function POST(
       }
     }
 
-    // Validate candidates exist in this election
+    // Validate candidates exist
     const { data: validCandidates, error: candidatesError } = await supabase
       .from('candidates')
       .select('id')
@@ -103,7 +93,7 @@ export async function POST(
       )
     }
 
-    // Check voting policy (single vs multiple votes)
+    // Check voting policy
     if (!election.allow_multiple_votes && candidateIds.length > 1) {
       return NextResponse.json(
         { error: 'This election only allows voting for one candidate' },
@@ -111,14 +101,13 @@ export async function POST(
       )
     }
 
-    // Insert the vote
+    // Insert the vote - SIMPLE VERSION
     const { data: vote, error: insertError } = await supabase
       .from('votes')
       .insert({
         election_id: electionId,
         candidate_ids: candidateIds,
-        voter_email: voterEmail || null,
-        created_at: new Date().toISOString()
+        voter_email: voterEmail || null
       })
       .select()
       .single()
@@ -130,8 +119,6 @@ export async function POST(
         { status: 500 }
       )
     }
-
-    console.log('Vote submitted successfully:', vote.id)
 
     return NextResponse.json({
       message: 'Vote submitted successfully!',
@@ -147,13 +134,14 @@ export async function POST(
   }
 }
 
-// Simple endpoint to get vote counts for an election
+// Get vote counts for an election
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const resolvedParams = await params
+    const supabase = createServiceRoleClient()
     const electionId = resolvedParams.id
 
     // Get election info
@@ -170,7 +158,7 @@ export async function GET(
       )
     }
 
-    // Get all votes for this election
+    // Get all votes
     const { data: votes, error: votesError } = await supabase
       .from('votes')
       .select('candidate_ids')
@@ -183,7 +171,7 @@ export async function GET(
       )
     }
 
-    // Count votes for each candidate
+    // Count votes
     const voteCounts: { [candidateId: string]: number } = {}
     
     votes.forEach(vote => {
