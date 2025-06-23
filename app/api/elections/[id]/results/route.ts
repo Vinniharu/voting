@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+interface VoteResult {
+  candidateId: string
+  candidateName: string
+  description: string | null
+  voteCount: number
+  percentage: number
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -65,7 +73,7 @@ export async function GET(
     const totalVotes = votes?.length || 0
 
     // Create results array with candidate information
-    const results = election.candidates.map((candidate: any) => {
+    const results: VoteResult[] = election.candidates.map((candidate: any) => {
       const voteCount = candidateVotes[candidate.id] || 0
       const percentage = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0
 

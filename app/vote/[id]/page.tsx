@@ -58,7 +58,7 @@ export default function VotePage() {
       
       if (response.ok) {
         const data = await response.json()
-        setElection(data.election)
+        setElection(data)
       } else {
         setError('Election not found or no longer available')
       }

@@ -178,7 +178,7 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-4">
                 {elections.map((election: Election) => (
-                  <div key={election.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                  <div key={election.id} className="border rounded-lg p-4 hover:bg-blue-950">
                     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">

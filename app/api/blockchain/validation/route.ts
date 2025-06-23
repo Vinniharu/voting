@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
             )
           }
 
-          if (vote.elections.creator_id !== user.id) {
+          if ((vote.elections as any).creator_id !== user.id) {
             return NextResponse.json(
               { error: 'Unauthorized - you can only check integrity of votes in your elections' },
               { status: 403 }
@@ -259,7 +259,7 @@ export async function POST(request: NextRequest) {
           }
 
           // Check if user owns all elections
-          const unauthorizedVotes = votes.filter(vote => vote.elections.creator_id !== user.id)
+          const unauthorizedVotes = votes.filter(vote => (vote.elections as any).creator_id !== user.id)
           if (unauthorizedVotes.length > 0) {
             return NextResponse.json(
               { error: 'Unauthorized - you can only verify votes in your own elections' },
@@ -321,7 +321,7 @@ export async function POST(request: NextRequest) {
             )
           }
 
-          if (vote.elections.creator_id !== user.id) {
+          if ((vote.elections as any).creator_id !== user.id) {
             return NextResponse.json(
               { error: 'Unauthorized' },
               { status: 403 }

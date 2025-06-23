@@ -99,20 +99,15 @@ export default function CreateElectionModal({ onElectionCreated }: CreateElectio
       const validCandidates = formData.candidates
         .filter(candidate => candidate.name.trim())
         .map(candidate => ({
-          id: candidate.id,
           name: candidate.name.trim(),
           description: candidate.description.trim() || ''
         }))
 
-      // Create election data with default values
+      // Create election data - only send what the API expects
       const electionData = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        startDate: new Date().toISOString(), // Start immediately
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // End in 7 days
-        candidates: validCandidates, // Send full candidate objects
-        votingPolicy: 'one-vote' as const, // Backend expects votingPolicy, not allowMultipleVotes
-        requiresRegistration: false // Backend expects requiresRegistration, not requireVoterRegistration
+        candidates: validCandidates
       }
 
       console.log('Creating election:', electionData)

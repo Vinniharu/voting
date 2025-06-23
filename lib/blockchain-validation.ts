@@ -58,8 +58,8 @@ export interface ElectionValidationStatus {
 }
 
 class BlockchainValidationService {
-  private provider: ethers.JsonRpcProvider
-  private signer: ethers.Wallet
+  private provider: ethers.JsonRpcProvider | null = null
+  private signer: ethers.Wallet | null = null
   private contract: ethers.Contract | null = null
   private contractAddress: string = process.env.VOTE_VALIDATION_CONTRACT_ADDRESS || ''
 
@@ -508,11 +508,4 @@ class BlockchainValidationService {
 }
 
 // Export singleton instance
-export const blockchainValidationService = new BlockchainValidationService()
-
-// Export types and utilities
-export {
-  BlockchainVoteValidation,
-  VoteIntegrityCheck,
-  ElectionValidationStatus
-} 
+export const blockchainValidationService = new BlockchainValidationService() 

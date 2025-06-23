@@ -45,8 +45,8 @@ export async function GET(
         name: c.name,
         description: c.description
       })),
-      votingPolicy: election.allow_multiple_votes ? 'multiple-votes' : 'one-vote',
-      requiresRegistration: election.require_voter_registration,
+      allowMultipleVotes: election.allow_multiple_votes,
+      requireVoterRegistration: election.require_voter_registration,
       creatorId: election.creator_id,
       creatorName: election.users?.full_name || 'Unknown',
       createdAt: election.created_at,

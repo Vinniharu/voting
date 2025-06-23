@@ -1,3 +1,4 @@
+
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -95,7 +96,7 @@ export default function VoteResultsModal({ isOpen, onClose, electionId }: VoteRe
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-4xl w-[90vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
