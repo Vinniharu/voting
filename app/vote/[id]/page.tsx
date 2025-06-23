@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Vote, CheckCircle, Clock, Users, Mail } from 'lucide-react'
+import { Vote, CheckCircle, Clock, Users, Mail, Shield } from 'lucide-react'
 import { formatDateWithTime } from '@/lib/utils'
+import BiometricAuth from '@/components/BiometricAuth'
 
 interface Candidate {
   id: string
@@ -47,6 +48,8 @@ export default function VotePage() {
   })
   const [error, setError] = useState<string>('')
   const [voteSubmitted, setVoteSubmitted] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showBiometricAuth, setShowBiometricAuth] = useState(false)
 
   useEffect(() => {
     fetchElection()
@@ -91,6 +94,12 @@ export default function VotePage() {
   }
 
   const handleSubmitVote = async () => {
+    // Check biometric authentication first
+    if (!isAuthenticated) {
+      setShowBiometricAuth(true)
+      return
+    }
+
     // Simple validation
     if (voteData.candidateIds.length === 0) {
       setError('Please select at least one candidate')
@@ -134,6 +143,20 @@ export default function VotePage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true)
+    setShowBiometricAuth(false)
+    // Auto-submit the vote after successful authentication
+    setTimeout(() => {
+      handleSubmitVote()
+    }, 500)
+  }
+
+  const handleAuthCancel = () => {
+    setShowBiometricAuth(false)
+    setError('Biometric authentication is required to cast your vote')
   }
 
 
@@ -328,17 +351,39 @@ export default function VotePage() {
                   </div>
                 ) : election.status !== 'active' ? (
                   'Election Not Active'
-                ) : (
+                ) : isAuthenticated ? (
                   <div className="flex items-center gap-2">
                     <Vote className="h-5 w-5" />
                     Submit Vote
                   </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Authenticate & Vote
+                  </div>
                 )}
               </Button>
             </div>
+
+            {/* Biometric Authentication Status */}
+            {isAuthenticated && (
+              <div className="mt-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg">
+                <div className="flex items-center gap-2 text-green-300 text-sm">
+                  <CheckCircle className="h-4 w-4" />
+                  Biometric authentication verified
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Biometric Authentication Modal */}
+      <BiometricAuth
+        isOpen={showBiometricAuth}
+        onAuthSuccess={handleAuthSuccess}
+        onAuthCancel={handleAuthCancel}
+      />
     </div>
   )
 } 
