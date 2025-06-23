@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Vote, CheckCircle, Clock, Users, Mail, Wallet, Shield, Link as LinkIcon } from 'lucide-react'
+import { Vote, CheckCircle, Clock, Users, Mail } from 'lucide-react'
 import { formatDateWithTime } from '@/lib/utils'
 
 interface Candidate {
@@ -33,39 +33,6 @@ interface VoteData {
   voterEmail: string
 }
 
-interface WalletInfo {
-  address: string
-  type: string
-  balance: string
-}
-
-const WALLET_TYPES = [
-  {
-    id: 'metamask',
-    name: 'MetaMask',
-    icon: '🦊',
-    description: 'Connect using MetaMask browser extension'
-  },
-  {
-    id: 'walletconnect',
-    name: 'WalletConnect',
-    icon: '🔗',
-    description: 'Scan with WalletConnect to connect'
-  },
-  {
-    id: 'coinbase',
-    name: 'Coinbase Wallet',
-    icon: '🔵',
-    description: 'Connect with Coinbase Wallet'
-  },
-  {
-    id: 'phantom',
-    name: 'Phantom',
-    icon: '👻',
-    description: 'Connect using Phantom wallet'
-  }
-]
-
 export default function VotePage() {
   const params = useParams()
   const router = useRouter()
@@ -80,12 +47,6 @@ export default function VotePage() {
   })
   const [error, setError] = useState<string>('')
   const [voteSubmitted, setVoteSubmitted] = useState(false)
-  
-  // Wallet connection states
-  const [walletConnected, setWalletConnected] = useState(false)
-  const [walletConnecting, setWalletConnecting] = useState(false)
-  const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
-  const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null)
 
   useEffect(() => {
     fetchElection()
@@ -175,38 +136,7 @@ export default function VotePage() {
     }
   }
 
-  const connectWallet = async (walletType: string) => {
-    setWalletConnecting(true)
-    setSelectedWallet(walletType)
-    setError('')
 
-    try {
-      // Simulate wallet connection delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Generate mock wallet data
-      const mockAddress = `0x${Math.random().toString(16).substr(2, 40)}`
-      const mockBalance = (Math.random() * 10).toFixed(4)
-      
-      setWalletInfo({
-        address: mockAddress,
-        type: walletType,
-        balance: mockBalance
-      })
-      
-      setWalletConnected(true)
-    } catch (error) {
-      setError('Failed to connect wallet. Please try again.')
-    } finally {
-      setWalletConnecting(false)
-    }
-  }
-
-  const disconnectWallet = () => {
-    setWalletConnected(false)
-    setWalletInfo(null)
-    setSelectedWallet(null)
-  }
 
   const getStatusInfo = (status: string) => {
     switch (status) {
@@ -269,152 +199,9 @@ export default function VotePage() {
   const statusInfo = getStatusInfo(election.status)
   const StatusIcon = statusInfo.icon
 
-  // Show wallet connection interface if not connected
-  if (!walletConnected) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4">
-        <div className="max-w-2xl mx-auto">
-          {/* Header */}
-          <Card className="mb-6 bg-slate-800/50 border-slate-700">
-            <CardHeader className="text-center p-6">
-              <div className="flex justify-center mb-4">
-                <div className="p-3 bg-blue-500/20 rounded-full">
-                  <Shield className="h-8 w-8 text-blue-400" />
-                </div>
-              </div>
-              <CardTitle className="text-2xl text-white mb-2">Blockchain Voting</CardTitle>
-              <CardDescription className="text-slate-300">
-                Connect your wallet to participate in secure, decentralized voting
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          {/* Election Info Preview */}
-          {election && (
-            <Card className="mb-6 bg-slate-800/50 border-slate-700">
-              <CardHeader className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg text-white">{election.title}</CardTitle>
-                    <CardDescription className="text-slate-300 text-sm">
-                      {election.description}
-                    </CardDescription>
-                  </div>
-                  <Badge className={`${statusInfo.color} text-xs`}>
-                    <StatusIcon className="h-3 w-3 mr-1" />
-                    {statusInfo.text}
-                  </Badge>
-                </div>
-              </CardHeader>
-            </Card>
-          )}
-
-          {/* Wallet Connection */}
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardHeader className="p-6">
-              <CardTitle className="text-white flex items-center gap-2">
-                <Wallet className="h-5 w-5" />
-                Connect Your Wallet
-              </CardTitle>
-              <CardDescription className="text-slate-300">
-                Choose a wallet to connect and verify your identity for voting
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 pt-0">
-              {error && (
-                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-3">
-                {WALLET_TYPES.map((wallet) => (
-                  <div
-                    key={wallet.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      walletConnecting && selectedWallet === wallet.id
-                        ? 'border-blue-500 bg-blue-500/20'
-                        : 'border-slate-600 bg-slate-700/30 hover:border-slate-500 hover:bg-slate-700/50'
-                    }`}
-                    onClick={() => !walletConnecting && connectWallet(wallet.id)}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl">{wallet.icon}</div>
-                      <div className="flex-1">
-                        <div className="font-medium text-white">{wallet.name}</div>
-                        <div className="text-sm text-slate-400">{wallet.description}</div>
-                      </div>
-                      {walletConnecting && selectedWallet === wallet.id ? (
-                        <div className="flex items-center gap-2 text-blue-400 text-sm">
-                          <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin"></div>
-                          Connecting...
-                        </div>
-                      ) : (
-                        <LinkIcon className="h-5 w-5 text-slate-400" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 p-4 bg-slate-700/30 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <Shield className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <div className="text-sm font-medium text-white">Secure & Private</div>
-                    <div className="text-xs text-slate-400 mt-1">
-                      Your vote is encrypted and recorded on the blockchain for transparency and immutability.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4">
       <div className="max-w-2xl mx-auto">
-        {/* Wallet Status */}
-        {walletConnected && walletInfo && (
-          <Card className="mb-4 bg-green-500/10 border-green-500/30">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/20 rounded-full">
-                    <Wallet className="h-4 w-4 text-green-400" />
-                  </div>
-                  <div>
-                    <div className="text-green-300 text-sm font-medium">
-                      {WALLET_TYPES.find(w => w.id === walletInfo.type)?.name} Connected
-                    </div>
-                    <div className="text-green-400/70 text-xs font-mono">
-                      {walletInfo.address.slice(0, 6)}...{walletInfo.address.slice(-4)}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="text-green-300 text-xs">Balance</div>
-                    <div className="text-green-400 text-sm font-medium">{walletInfo.balance} ETH</div>
-                  </div>
-                  <Button
-                    onClick={disconnectWallet}
-                    variant="outline"
-                    size="sm"
-                    className="border-green-500/30 text-green-300 hover:bg-green-500/20 text-xs"
-                  >
-                    Disconnect
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Election Header */}
         <Card className="mb-4 sm:mb-6 bg-slate-800/50 border-slate-700">
           <CardHeader className="p-4 sm:p-6">
@@ -455,12 +242,12 @@ export default function VotePage() {
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-white flex items-center gap-2 text-lg sm:text-xl">
               <Vote className="h-5 w-5" />
-              Cast Your Blockchain Vote
+              Cast Your Vote
             </CardTitle>
             <CardDescription className="text-slate-300 text-sm sm:text-base">
               {election.allowMultipleVotes 
-                ? 'Select one or more candidates. Your vote will be recorded on the blockchain.' 
-                : 'Select one candidate. Your vote will be recorded on the blockchain.'}
+                ? 'Select one or more candidates' 
+                : 'Select one candidate'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
@@ -470,19 +257,6 @@ export default function VotePage() {
                 {error}
               </div>
             )}
-
-            {/* Blockchain Info */}
-            <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-              <div className="flex items-start gap-2">
-                <Shield className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                <div className="text-xs text-blue-300">
-                  <div className="font-medium">Blockchain Security</div>
-                  <div className="text-blue-400/80 mt-1">
-                    Your vote will be cryptographically signed and permanently recorded on the blockchain for maximum transparency and security.
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* Email Input (if required) */}
             {election.requireVoterRegistration && (
@@ -544,20 +318,20 @@ export default function VotePage() {
               <Button
                 onClick={handleSubmitVote}
                 disabled={isSubmitting || voteData.candidateIds.length === 0 || election.status !== 'active'}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-sm sm:text-base"
+                className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm sm:text-base"
                 size="lg"
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Recording on Blockchain...
+                    Submitting Vote...
                   </div>
                 ) : election.status !== 'active' ? (
                   'Election Not Active'
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    Submit Blockchain Vote
+                    <Vote className="h-5 w-5" />
+                    Submit Vote
                   </div>
                 )}
               </Button>
